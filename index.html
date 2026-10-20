@@ -164,7 +164,7 @@
     <!-- Deficit/Surplus Table -->
     <div class="panel rounded-xl p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="font-bold text-white">Generation vs Demand — Average Sun (4.5 PSH), 0.75 Derate</h3>
+        <h3 id="ledger-heading" class="font-bold text-white">Generation vs Demand — Average Sun (4.5 PSH), 0.75 Derate</h3>
         <div class="flex gap-2">
           <button id="cfg-poor" class="px-3 py-1 rounded text-xs font-mono border border-white/10 hover:border-ff6b1a text-white/60 hover:text-ff6b1a">Poor (3.0)</button>
           <button id="cfg-avg" class="px-3 py-1 rounded text-xs font-mono border border-ff6b1a text-ff6b1a bg-ff6b1a/10">Average (4.5)</button>
@@ -191,6 +191,7 @@
           </tbody>
         </table>
       </div>
+      <div id="plat-select" class="mt-4 pt-4 border-t border-white/5 flex flex-wrap items-center gap-2"></div>
       <p class="mt-4 text-xs text-white/40 italic">
         RV baseline (fridge, pump, lights, inverter idle) ~200W continuous, partly carried by the separate 12V house island. The 12V island is NOT in this table — it draws ~0.32–0.44 kWh/day and is fed separately.
       </p>
@@ -761,6 +762,61 @@ function bindModelControls(){
   });
 }
 
+/* ============================================================
+   v1.2 — Compute platform selector
+   Idle draw is the load that runs 24/7 whether or not any work
+   is done, so it — not peak draw — decides whether the rig is
+   autonomous. Demand is recomputed from these numbers:
+     demand(h) = base(8.4) + idleW*24/1000 + h*(fullW-idleW)/1000
+   ============================================================ */
+const GPU_PLATFORMS = {
+  '5070x4':{label:'4× RTX 5070 · EPYC', idle:250, full:1250, note:'Baseline the locked ledger was computed against. ~100–150W of that idle is CPU doing nothing.'},
+  '4090x2':{label:'2× RTX 4090 · consumer', idle:120, full:1100, note:'Recommended — 130W less idle = 3.12 kWh/day back, every day, before a single job runs (the wiki quotes 2.4 kWh/day counting CPU idle alone).'},
+  '3090x4':{label:'4× RTX 3090', idle:250, full:1600, note:'Highest full-load draw in the set. Winter-hostile.'},
+  'none':{label:'No compute node', idle:0, full:0, note:'Life-support only. Compute streams go to zero with it.'}
+};
+const GPU_KEY = 'tiamat.gpu.v1';
+const BASE_LOAD = (200 + 150) * 24 / 1000; // house 200W + network 150W = 8.4 kWh/day
+function loadGPU(){ try { const r = localStorage.getItem(GPU_KEY); if (r && GPU_PLATFORMS[r]) return r; } catch(e){} return '5070x4'; }
+function saveGPU(v){ try { localStorage.setItem(GPU_KEY, v); } catch(e){} }
+function demandFor(hours, key){
+  const p = GPU_PLATFORMS[key];
+  if (!p.full) return hours === 0 ? BASE_LOAD : null;      // no node → GPU columns are meaningless
+  const idleDraw = p.idle * 24 / 1000;
+  const work = hours * (p.full - p.idle) / 1000;
+  return BASE_LOAD + idleDraw + work;
+}
+function renderPlatformBar(){
+  const node = document.getElementById('plat-select');
+  if (!node) return;
+  const key = app.gpuPlatform, p = GPU_PLATFORMS[key];
+  const idleDraw = demandFor(0, key);
+  const baseline = demandFor(0, '5070x4');
+  const delta = key === 'none' || key === '5070x4' ? null : idleDraw - baseline;
+  node.innerHTML =
+    `<span class="text-[10px] uppercase font-mono text-white/40 font-bold">Compute platform</span>` +
+    Object.keys(GPU_PLATFORMS).map(k => {
+      const on = k === key;
+      return `<button data-plat="${k}" class="px-3 py-1 rounded text-xs font-mono border ${on ? 'border-ff6b1a text-ff6b1a bg-ff6b1a/10' : 'border-white/10 text-white/60 hover:border-ff6b1a hover:text-ff6b1a'}">${GPU_PLATFORMS[k].label}</button>`;
+    }).join('') +
+    `<span class="w-full text-[10px] font-mono text-white/40 mt-1">
+       idle draw <span class="text-white">${idleDraw.toFixed(2)} kWh/day</span>
+       ${delta === null ? '' : ` · vs 4×5070 baseline <span class="${delta <= 0 ? 'text-10b981' : 'text-ef4444'}">${delta <= 0 ? '' : '+'}${delta.toFixed(2)} kWh/day</span>`}
+       · ${p.note}
+     </span>`;
+}
+function bindPlatform(){
+  const node = document.getElementById('plat-select');
+  if (!node) return;
+  node.addEventListener('click', e => {
+    const b = e.target.closest('[data-plat]');
+    if (!b) return;
+    app.gpuPlatform = b.dataset.plat;
+    saveGPU(app.gpuPlatform);
+    app.renderLedger();
+  });
+}
+
 const app = {
   currentTab: 'matrix',
   activeStream: null,
@@ -768,11 +824,13 @@ const app = {
 
   init() {
     loadModel();
+    this.gpuPlatform = loadGPU();
     this.bindNav();
     this.renderStreams();
     renderModel();
     bindModelControls();
     this.renderLedger();
+    bindPlatform();
     this.renderBlockA();
     this.renderRisks();
     this.bindPanel();
@@ -913,7 +971,7 @@ const app = {
 
   bindExport() {
     document.getElementById('export-state').addEventListener('click', () => {
-      const state = { streams: TIAMAT_DATA.streams.map(s => ({ id: s.id, status: s.status })), ledgerConfig: this.ledgerConfig, activeStream: this.activeStream ? this.activeStream.id : null };
+      const state = { streams: TIAMAT_DATA.streams.map(s => ({ id: s.id, status: s.status })), ledgerConfig: this.ledgerConfig, gpuPlatform: this.gpuPlatform, model: MODEL, activeStream: this.activeStream ? this.activeStream.id : null };
       const hash = btoa(JSON.stringify(state)).replace(/[+/=]/g, c => ({ '+': '-', '/': '_', '=': '' }[c]));
       const url = window.location.origin + window.location.pathname + '#tiamat=' + hash;
       navigator.clipboard.writeText(url).then(() => {
@@ -927,26 +985,30 @@ const app = {
 
   renderLedger() {
     const cfg = TIAMAT_DATA.leviathan.powerLedger.scenarios[this.ledgerConfig];
+    const gpuKey = this.gpuPlatform || '5070x4';
     const tbody = document.getElementById('ledger-table');
+    const fmt = (n) => (n >= 0 ? '+' : '') + n.toFixed(2);
+    const PSH_LABEL = { poor:'Poor Sun (3.0 PSH)', avg:'Average Sun (4.5 PSH)', good:'Good Sun (5.5 PSH)', summer:'CA/AZ Summer (6.0 PSH)' };
+    const heading = document.getElementById('ledger-heading');
+    if (heading) heading.textContent = `Generation vs Demand — ${PSH_LABEL[this.ledgerConfig]}, 0.75 Derate, ${GPU_PLATFORMS[gpuKey].label}`;
+    const dIdle = demandFor(0, gpuKey), d4 = demandFor(4, gpuKey), d8 = demandFor(8, gpuKey), d24 = demandFor(24, gpuKey);
     tbody.innerHTML = cfg.rows.map(r => {
-      const idleNet = r.gen - r.idle;
-      const gpu4Net = r.gen - r.gpu4;
-      const gpu8Net = r.gen - r.gpu8;
-      const gpu24Net = r.gen - r.gpu24;
-      const fmt = (n) => (n >= 0 ? '+' : '') + n.toFixed(2);
+      const cell = (d) => {
+        if (d === null) return '<td class="py-3 px-4 text-right font-mono text-white/25">—</td>';
+        const net = r.gen - d;
+        return `<td class="py-3 px-4 text-right font-mono ${net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(net)}</td>`;
+      };
       return `
         <tr class="group hover:bg-white/5">
           <td class="py-3 px-4 font-bold text-white">${r.label}</td>
           <td class="py-3 px-4 text-right text-white/60 font-mono">${r.nominal}</td>
           <td class="py-3 px-4 text-right font-mono text-white">${r.gen.toFixed(2)}</td>
-          <td class="py-3 px-4 text-right font-mono text-white/60">${r.idle}</td>
-          <td class="py-3 px-4 text-right font-mono ${idleNet >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(idleNet)}</td>
-          <td class="py-3 px-4 text-right font-mono ${gpu4Net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(gpu4Net)}</td>
-          <td class="py-3 px-4 text-right font-mono ${gpu8Net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(gpu8Net)}</td>
-          <td class="py-3 px-4 text-right font-mono ${gpu24Net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(gpu24Net)}</td>
+          <td class="py-3 px-4 text-right font-mono text-white/60">${dIdle.toFixed(2)}</td>
+          ${cell(dIdle)}${cell(d4)}${cell(d8)}${cell(d24)}
         </tr>
       `;
     }).join('');
+    renderPlatformBar();
   },
 
   bindLedgerToggle() {
@@ -1022,6 +1084,8 @@ if (window.location.hash.startsWith('#tiamat=')) {
     const hash = window.location.hash.slice('#tiamat='.length).replace(/-/g, '+').replace(/_/g, '/') + '==';
     const state = JSON.parse(atob(hash));
     if (state.ledgerConfig) app.ledgerConfig = state.ledgerConfig;
+    if (state.gpuPlatform && GPU_PLATFORMS[state.gpuPlatform]) { app.gpuPlatform = state.gpuPlatform; saveGPU(state.gpuPlatform); }
+    if (state.model) { Object.assign(MODEL, state.model); saveModel(); }
     if (state.activeStream) setTimeout(() => app.openStream(state.activeStream), 100);
   } catch (err) { /* ignore bad hash */ }
 }
