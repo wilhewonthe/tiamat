@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiamat v1 — Venture Matrix System</title>
+<script src="./tiamat-vendor/tailwind-play.js"></script>
+<script>/* CDN fallback only if the vendored copy is missing (offline-first) */
+  if(typeof window.tailwind==="undefined"){document.write('<script src="https:\/\/cdn.tailwindcss.com\/3.4.17"><\/script>');}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0a0a0a; color: #e5e5e5; }
+  code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+  .molten { background: linear-gradient(135deg, #ff6b1a 0%, #ff8c00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .molten-bg { background: linear-gradient(135deg, #ff6b1a 0%, #ff8c00 100%); }
+  .panel { background: #111111; border: 1px solid #222222; }
+  .panel:hover { border-color: #333333; }
+  .accent-bar { border-left: 3px solid #ff6b1a; }
+  .accent-bar-blue { border-left: 3px solid #3b82f6; }
+  .accent-bar-purple { border-left: 3px solid #a855f7; }
+  .accent-bar-emerald { border-left: 3px solid #10b981; }
+  .accent-bar-amber { border-left: 3px solid #f59e0b; }
+  .glass { background: rgba(17, 17, 17, 0.6); backdrop-filter: blur(8px); }
+  .stream-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+  .stream-card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -10px rgba(255, 107, 26, 0.15); }
+  .stream-card.active { border-color: #ff6b1a; background: rgba(255, 107, 26, 0.05); }
+  .deficit { color: #ef4444; }
+  .surplus { color: #10b981; }
+  .neutral { color: #f59e0b; }
+  .tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-ff6b1a selection:text-0a0a0a">
+
+<!-- Header -->
+<header class="border-b border-white/10 bg-0a0a0a/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl molten-bg flex items-center justify-center font-black text-0a0a0a text-xl shadow-lg shadow-ff6b1a/30">🔥</div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-black text-xl text-white tracking-tight">Tiamat v1</h1>
+          <span class="text-xs px-2 py-0.5 rounded-full bg-ff6b1a/10 text-ff6b1a border border-ff6b1a/30 font-mono">Venture Matrix</span>
+        </div>
+        <p class="text-xs text-white/50">Single-file venture matrix & Leviathan energy ledger · Panic Responsibly™</p>
+      </div>
+    </div>
+
+    <!-- Quick Metrics Ribbon -->
+    <div class="flex flex-wrap items-center gap-3 text-xs">
+      <div class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
+        <span class="text-white/40">Y1 Value:</span>
+        <span class="font-mono font-bold text-ff6b1a">$31,700+</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
+        <span class="text-white/40">Run Rate (Y2+):</span>
+        <span class="font-mono font-bold text-3b82f6">$35k–$50k+/yr</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-lg bg-ff6b1a/10 border border-ff6b1a/30 text-ff6b1a flex items-center gap-2 font-medium">
+        <span>🚀 Immediate:</span>
+        <span class="font-mono font-bold">Stream ⑧ 3D Mfg — $500–$3k NOW</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="max-w-7xl mx-auto mt-4 flex items-center gap-1 border-t border-white/10 pt-2 overflow-x-auto pb-2">
+    <button id="tab-matrix" class="nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-ff6b1a text-0a0a00 font-semibold shadow-sm flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+      Venture Matrix
+    </button>
+    <button id="tab-ledger" class="nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors text-white/40 hover:text-white hover:bg-white/5 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      Energy Ledger
+    </button>
+    <button id="tab-synergies" class="nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors text-white/40 hover:text-white hover:bg-white/5 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Cross-Project Synergies
+    </button>
+    <button id="tab-open-questions" class="nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors text-white/40 hover:text-white hover:bg-white/5 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Block A — Measure the Coach
+    </button>
+    <button id="tab-risks" class="nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors text-white/40 hover:text-white hover:bg-white/5 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      Critical Risks
+    </button>
+  </div>
+</header>
+
+<main class="flex-1 max-w-7xl w-full mx-auto p-6 sm:p-8 flex flex-col gap-8">
+
+  <!-- VIEW 1: Venture Matrix -->
+  <section id="view-matrix" class="flex-1 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-black text-white tracking-tight">8 Revenue Streams + Leviathan Integration</h2>
+        <p class="text-xs text-white/40 mt-1">Cross-referenced venture matrix. Click any stream → side panel with live math, dependencies, and Leviathan asset links.</p>
+      </div>
+      <div class="text-right hidden sm:block">
+        <div class="text-[10px] uppercase font-mono text-white/30 font-bold">Portfolio View</div>
+        <div class="font-mono font-bold text-white">$31,700+ Y1 · $35k–$50k+/yr Y2+</div>
+      </div>
+    </div>
+
+    <!-- Stream Grid (4x2) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="stream-grid">
+      <!-- Streams injected by JS -->
+    </div>
+
+    <!-- Revenue Model Strip (sliders drive these totals) -->
+    <div class="panel rounded-xl p-4 sm:p-5 border border-white/10" id="model-strip">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <span class="text-[10px] uppercase font-mono text-white/40 font-bold">Portfolio Model — drag the slider inside any stream to re-run the math</span>
+        <div class="flex items-center gap-2">
+          <button id="model-reset" class="text-[10px] font-mono px-2 py-1 rounded border border-white/10 text-white/50 hover:border-ff6b1a hover:text-ff6b1a">reset model</button>
+          <button id="model-csv" class="text-[10px] font-mono px-2 py-1 rounded border border-ff6b1a/40 text-ff6b1a hover:bg-ff6b1a/10">export CSV</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-6 gap-3" id="model-totals"></div>
+      <div class="mt-3 h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+        <div id="model-bar" class="h-full molten-bg transition-all duration-300" style="width:0%"></div>
+      </div>
+      <div class="mt-2 flex items-center justify-between text-[10px] font-mono text-white/30">
+        <span id="model-note">Anchors: $31,700 Y1 · $35k–$50k+ Y2+ · $24k GPU steady state</span>
+        <span id="model-saved">saved locally</span>
+      </div>
+    </div>
+
+    <!-- Side Panel (Slide-over) -->
+    <div id="side-panel" class="fixed inset-y-0 right-0 w-full sm:w-80 bg-0a0a0a border-l border-white/10 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+      <div class="p-6 flex items-center justify-between border-b border-white/10">
+        <h3 id="panel-title" class="text-lg font-bold text-white">Stream Detail</h3>
+        <button id="close-panel" class="text-white/40 hover:text-white">✕</button>
+      </div>
+      <div id="panel-content" class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+        <!-- Content injected by JS -->
+      </div>
+      <div class="p-4 border-t border-white/10 bg-white/5">
+        <div class="flex items-center justify-between text-xs text-white/40">
+          <span>Export state</span>
+          <button id="export-state" class="text-ff6b1a hover:text-ff6b1a/80 font-mono">Copy Link ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay backdrop -->
+    <div id="panel-backdrop" class="fixed inset-0 bg-black/40 z-40 hidden backdrop-blur-sm transition-opacity duration-300"></div>
+  </section>
+
+  <!-- VIEW 2: Energy Ledger -->
+  <section id="view-ledger" class="hidden flex-1 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-black text-white tracking-tight">Operation Leviathan — Energy Ledger</h2>
+      <div class="text-right hidden sm:block">
+        <div class="text-[10px] uppercase font-mono text-white/30 font-bold">Stationary-Dominant</div>
+        <div class="font-mono font-bold text-white">No generation while driving · Mast ground-mounted</div>
+      </div>
+    </div>
+
+    <!-- Deficit/Surplus Table -->
+    <div class="panel rounded-xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-white">Generation vs Demand — Average Sun (4.5 PSH), 0.75 Derate</h3>
+        <div class="flex gap-2">
+          <button id="cfg-poor" class="px-3 py-1 rounded text-xs font-mono border border-white/10 hover:border-ff6b1a text-white/60 hover:text-ff6b1a">Poor (3.0)</button>
+          <button id="cfg-avg" class="px-3 py-1 rounded text-xs font-mono border border-ff6b1a text-ff6b1a bg-ff6b1a/10">Average (4.5)</button>
+          <button id="cfg-good" class="px-3 py-1 rounded text-xs font-mono border border-white/10 hover:border-ff6b1a text-white/60 hover:text-ff6b1a">Good (5.5)</button>
+          <button id="cfg-summer" class="px-3 py-1 rounded text-xs font-mono border border-white/10 hover:border-ff6b1a text-white/60 hover:text-ff6b1a">CA/AZ Summer (6.0)</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse font-mono">
+          <thead>
+            <tr class="border-b border-white/10 text-white/40 font-bold uppercase tracking-wider">
+              <th class="py-3 px-4">Array Config</th>
+              <th class="py-3 px-4 text-right">Nominal</th>
+              <th class="py-3 px-4 text-right">Generation</th>
+              <th class="py-3 px-4 text-right">Idle Demand</th>
+              <th class="py-3 px-4 text-right">Idle Net</th>
+              <th class="py-3 px-4 text-right">GPU 4h Net</th>
+              <th class="py-3 px-4 text-right">GPU 8h Net</th>
+              <th class="py-3 px-4 text-right">GPU 24/7 Net</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-table" class="divide-y divide-white/5">
+            <!-- Rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-4 text-xs text-white/40 italic">
+        RV baseline (fridge, pump, lights, inverter idle) ~200W continuous, partly carried by the separate 12V house island. The 12V island is NOT in this table — it draws ~0.32–0.44 kWh/day and is fed separately.
+      </p>
+    </div>
+
+    <!-- Critical Findings -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="panel rounded-xl p-5 accent-bar">
+        <div class="text-xs font-bold text-ef4444 uppercase tracking-wider mb-1">Critical Finding #1</div>
+        <h4 class="font-bold text-white mb-2">Energy budget never reconciled</h4>
+        <p class="text-xs text-white/60 leading-relaxed">The transcript sized the system at ~5 kWh/day, then at 38.4 kWh/day. Both numbers remain live. Hardware is still sized to the first while the load is the second. The ledger shows a deficit at every duty cycle.</p>
+      </div>
+      <div class="panel rounded-xl p-5 accent-bar-blue">
+        <div class="text-xs font-bold text-3b82f6 uppercase tracking-wider mb-1">Critical Finding #2</div>
+        <h4 class="font-bold text-white mb-2">Roof delamination risk</h4>
+        <p class="text-xs text-white/60 leading-relaxed">Crane Composites fiberglass on Alfa coaches has documented osmotic blistering. VHB bonds to the skin only — a 20 sq ft panel could depart at highway speed if the skin has separated from the substrate.</p>
+      </div>
+      <div class="panel rounded-xl p-5 accent-bar-purple">
+        <div class="text-xs font-bold text-a855f7 uppercase tracking-wider mb-1">Critical Finding #3</div>
+        <h4 class="font-bold text-white mb-2">LiFePO4 cold charging lockout</h4>
+        <p class="text-xs text-white/60 leading-relaxed">Bank in an unheated basement = winter generation uncollectable below 0°C BMS lockout. Self-heating batteries are mandatory, not optional. Winter is a genuine generator season.</p>
+      </div>
+    </div>
+
+    <!-- Architecture Fork -->
+    <div class="panel rounded-xl p-6">
+      <h3 class="font-bold text-white mb-4">Architecture Forks (decide these first)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="panel-inner bg-white/5 p-4 rounded-lg border border-white/10">
+          <h4 class="font-bold text-white mb-2">1. Inverter/Charger</h4>
+          <p class="text-xs text-white/60 mb-2">Separate MPPT + Victron Quattro 48/5000 vs EG4 18k all-in-one. Separate MPPT has no solar input ceiling — wins when generation is the constraint.</p>
+          <p class="text-[10px] font-mono text-ff6b1a font-bold mt-2">Recommendation: Separate MPPT + Victron Quattro</p>
+        </div>
+        <div class="panel-inner bg-white/5 p-4 rounded-lg border border-white/10">
+          <h4 class="font-bold text-white mb-2">2. GPU Node Sizing</h4>
+          <p class="text-xs text-white/60 mb-2">4×5070 on EPYC: ~250W idle (kills autonomy). 2×4090 on consumer CPU: ~120W idle (saves 2.4 kWh/day = 1/5 of budget). Size to surplus, not ambition.</p>
+          <p class="text-[10px] font-mono text-ff6b1a font-bold mt-2">Recommendation: 2× RTX 4090, consumer CPU</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Corrections -->
+    <div class="panel rounded-xl p-6">
+      <h3 class="font-bold text-white mb-4">User Corrections (ground truth)</h3>
+      <ul class="space-y-2 text-xs text-white/60">
+        <li><strong>Mast:</strong> NOT on hitch — ground-mounted telescoping mast with guy wires, deployed only when stationary.</li>
+        <li><strong>Driving:</strong> Essentially stationary — moves between semi-permanent locations. Panels stay affixed but do not generate while driving.</li>
+        <li><strong>Ops burden:</strong> Mast/shutter deploy per-relocation, not daily. Review panel Finding 8 downgraded from Medium.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- VIEW 3: Synergies -->
+  <section id="view-synergies" class="hidden flex-1 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-black text-white tracking-tight">Cross-Project Synergy Matrix</h2>
+      <p class="text-xs text-white/40 mt-1 hidden sm:block">How Leviathan assets feed venture streams, and vice versa.</p>
+    </div>
+    <div class="panel rounded-xl p-6">
+      <table class="w-full text-left text-xs border-collapse font-mono">
+        <thead>
+          <tr class="border-b border-white/10 text-white/40 font-bold uppercase tracking-wider">
+            <th class="py-3 px-4">Leviathan Asset</th>
+            <th class="py-3 px-4">Venture Stream</th>
+            <th class="py-3 px-4">Value Capture</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <tr>
+            <td class="py-3 px-4 text-white">Bermuda shutter design</td>
+            <td class="py-3 px-4 text-white/90">⑤ Patent + ④ Shutter OS</td>
+            <td class="py-3 px-4 text-white/60">Utility patent (hardware + control OS) → licensing / fleet sales</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 text-white">3D digital twin (alfa-proxy-twin.html)</td>
+            <td class="py-3 px-4 text-white/90">④ Coach Twin → Shutter OS</td>
+            <td class="py-3 px-4 text-white/60">SaaS for RV builders / retrofit market</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 text-white">GPU telemetry / automation</td>
+            <td class="py-3 px-4 text-white/90">② Vast.ai + ⑥ Mining</td>
+            <td class="py-3 px-4 text-white/60">Open-source halo-gpu-dashboard → managed service</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 text-white">Off-grid power telemetry</td>
+            <td class="py-3 px-4 text-white/90">① Offset verification</td>
+            <td class="py-3 px-4 text-white/60">Data product for RV solar installers</td>
+          </tr>
+          <tr>
+            <td class="py-3 px-4 text-white">Panic Responsibly™ brand</td>
+            <td class="py-3 px-4 text-white/90">All streams</td>
+            <td class="py-3 px-4 text-white/60">Unified trust mark → premium pricing</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- VIEW 4: Block A — Measure the Coach -->
+  <section id="view-open-questions" class="hidden flex-1 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-black text-white tracking-tight">Block A — Measure the Coach</h2>
+      <p class="text-xs text-white/40 mt-1 hidden sm:block">Single site visit unblocks six wiki pages. Print this and take it to the coach.</p>
+    </div>
+    <div class="panel rounded-xl p-6">
+      <table class="w-full text-left text-xs border-collapse font-mono">
+        <thead>
+          <tr class="border-b border-white/10 text-white/40 font-bold uppercase tracking-wider">
+            <th class="py-3 px-4">#</th>
+            <th class="py-3 px-4">Question</th>
+            <th class="py-3 px-4">Blocks</th>
+            <th class="py-3 px-4">How to answer</th>
+            <th class="py-3 px-4 text-right">Done</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5" id="block-a-table">
+          <!-- Rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+    <div class="panel rounded-xl p-6">
+      <h3 class="font-bold text-white mb-3">Leisure Coachworks — Factory Data Request</h3>
+      <p class="text-xs text-white/60 mb-4">VIN: <span class="font-mono text-white">1F6NF53Y160A07258</span> — Alfa See Ya 37FD Founder's Edition. Contact: support@leisurecw.com · (909) 428-6775 · Fontana, CA.</p>
+      <ul class="space-y-2 text-xs text-white/60 list-disc pl-5">
+        <li>Roof construction details (skin material, rib spacing, delamination bulletins, load rating, cross-section diagram)</li>
+        <li>VIN-specific factory electrical wiring diagram</li>
+        <li>Xantrex converter/charger model + as-delivered wiring</li>
+        <li>Shore power inlet wiring + neutral-ground bonding scheme</li>
+        <li>Basement bay dimensions + factory wiring runs</li>
+        <li>Factory GVWR / GAWR (front/rear) + as-delivered axle weights</li>
+        <li>Replacement roof skin panels (part numbers) + Sikaflex/VHB-approved adhesives</li>
+      </ul>
+      <div class="mt-4 p-3 rounded bg-white/5 border border-white/10">
+        <p class="text-[10px] font-mono text-ff6b1a">Follow-up if no response in 5 business days: call (909) 428-6775, ask for Jon Goldstein (ex-Alfa QC/Service Manager) or Richard Olivas. Offer to pay for document retrieval.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 5: Critical Risks -->
+  <section id="view-risks" class="hidden flex-1 flex flex-col gap-6">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-black text-white tracking-tight">Review Panel 01 — Critical Risks</h2>
+      <p class="text-xs text-white/40 mt-1 hidden sm:block">Angles neither the author nor the original assistant raised, ranked by how much they change the plan.</p>
+    </div>
+    <div class="panel rounded-xl p-6">
+      <table class="w-full text-left text-xs border-collapse font-mono">
+        <thead>
+          <tr class="border-b border-white/10 text-white/40 font-bold uppercase tracking-wider">
+            <th class="py-3 px-4 text-right">#</th>
+            <th class="py-3 px-4">Finding</th>
+            <th class="py-3 px-4">Severity</th>
+            <th class="py-3 px-4">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5" id="risks-table">
+          <!-- Rows injected by JS -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-white/10 bg-0a0a0a px-6 py-6 text-center text-xs text-white/30 font-mono">
+  Tiamat v1 — Venture Matrix System · Data synthesized from Leviathan Wiki, Mr. vH Venture Blueprint, GitHub repos, and user corrections · Panic Responsibly™
+</footer>
+
+<script>
+// ============================================================================
+// DATA EMBEDDED FROM SESSION SYNTHESIS (resume-tiamat.md → TIAMAT_HANDOFF.md)
+// ============================================================================
+
+const TIAMAT_DATA = {
+  streams: [
+    {
+      id: 'stream1',
+      number: '①',
+      title: 'Solar + Wind Farm & Electric Bill Offset',
+      category: 'Energy Infrastructure',
+      badgeColor: 'accent-bar-amber',
+      icon: '⚡',
+      y1: '$23,000*',
+      monthly: '$200–$300/mo',
+      capex: 'DIY (Me = Free)',
+      steady: '$2,400–$3,600/yr',
+      liquidity: 'Immediate',
+      status: 'LIVE',
+      statusColor: 'text-10b981',
+      dependency: 'Free pedestal power',
+      summary: 'Offset monthly electric bill with solar + wind farm. $200–300/mo recurring savings. Self-install avoids $20k+ professional contractor fees — "Me = FREE." $23,000 Y1 net economic value.',
+      leviathanLinks: ['solar-array', 'vawt-windmaxxr-rig', 'bermuda-solar-shutter', 'panel-split-strategy', 'shore-power-pedestal'],
+      notes: 'Ground-mounted wind mast (per user correction). Panels generate only when stationary.'
+    },
+    {
+      id: 'stream2',
+      number: '②',
+      title: 'GPU Compute (Vast.ai / RunPod)',
+      category: 'Compute Cloud',
+      badgeColor: 'accent-bar-blue',
+      icon: '🖥️',
+      y1: '$8,700',
+      monthly: '$200 → $2,000/mo',
+      capex: 'Existing / Staged',
+      steady: '$24,000/yr',
+      liquidity: '30 Days',
+      status: 'BLOCKED on power',
+      statusColor: 'text-ef4444',
+      dependency: 'Leviathan compute node + telemetry',
+      summary: 'Rent GPU compute on Vast.ai and RunPod. 4-quarter ramp: $750 → $1,350 → $2,100 → $4,500 quarterly. Locked into $24k/yr steady state post-Year 1. Requires off-grid power autonomy (Direction 1) or shore-power bridge (Direction 2).',
+      leviathanLinks: ['compute-node', 'compute-arbitrage', 'inverter-charger-brain', 'target-48v-bank'],
+      notes: 'Blocked until the Leviathan energy deficit is fixed. Use shore power as bridge (Direction 2) while generation is repaired.'
+    },
+    {
+      id: 'stream3',
+      number: '③',
+      title: 'Closet AI (Dual-in-One Resale Automation)',
+      category: 'Micro-SaaS & Commerce',
+      badgeColor: 'accent-bar-purple',
+      icon: '📱',
+      y1: '$3,000–$6,000',
+      monthly: '$500+/mo',
+      capex: 'Sweat Equity',
+      steady: '$6,000–$12,000/yr',
+      liquidity: '60–90 Days',
+      status: 'DESIGN',
+      statusColor: 'text-f59e0b',
+      dependency: 'App dev + supplier pipeline',
+      summary: 'Dual-in-one architecture: Branch 1 = consumer closet cataloging/app sales. Branch 2 = AI resale auto-poster (upload photos → AI generates titles, defect notes, measurements, brand ID → auto-syndicate to Poshmark, eBay, Mercari, Depop).',
+      leviathanLinks: [],
+      notes: 'Git repo at /home/panic/closet-ai (empty working tree, remote at mr-vh/closet-ai).'
+    },
+    {
+      id: 'stream4',
+      number: '④',
+      title: 'RV Coach 3D Twin → Shutter OS',
+      category: 'Embedded OS / Telemetry',
+      badgeColor: 'accent-bar-purple',
+      icon: '🏠',
+      y1: 'OS Controller MVP',
+      monthly: 'High Potential',
+      capex: 'Codebase Pivot',
+      steady: 'Embedded in Shutter Hardware',
+      liquidity: '90–120 Days',
+      status: 'IN PROGRESS',
+      statusColor: 'text-f59e0b',
+      dependency: 'Leviathan digital twin + patent',
+      summary: 'Dual-stage roadmap: Stage 1 = coach maintenance & hitch verification (CV checklist, 3D kinematic digital twin of 12V/48V bus, community diagnostic vault). Stage 2 pivot = Shutter OS — embedded OS orchestrating deployable solar Bermuda shutters.',
+      leviathanLinks: ['alfa-proxy-twin', 'bermuda-solar-shutter', 'compute-node'],
+      notes: 'The true enterprise value is the pivot into Shutter OS, not the coach diagnostic app itself.'
+    },
+    {
+      id: 'stream5',
+      number: '⑤',
+      title: 'Solar Bermuda Shutters (Utility Patent)',
+      category: 'CleanTech Utility Patent',
+      badgeColor: 'accent-bar-amber',
+      icon: '☀️',
+      y1: 'Patent Priority Secured',
+      monthly: 'Hardware + Licensing',
+      capex: 'Provisional Filing',
+      steady: 'Commercial CleanTech Moat',
+      liquidity: 'Licensing Asset',
+      status: 'CONCEPT',
+      statusColor: 'text-f59e0b',
+      dependency: 'Prototype + utility patent',
+      summary: 'Novel physical, kinematic, and automated deployment mechanics of solar Bermuda shutters. Dual functions: active solar PV generation + passive thermal shading (slashes AC load 40–50%). Shutter OS brain derived from Stream 4. Licensing to RV giants (Lippert, Carefree, Dometic, Winnebago) and architectural CleanTech.',
+      leviathanLinks: ['bermuda-solar-shutter', 'compute-node', 'autonomy-doctrine'],
+      notes: 'Patent is NOT for the coach app — it protects the shutter deployment mechanics and control OS.'
+    },
+    {
+      id: 'stream6',
+      number: '⑥',
+      title: 'Dedicated Crypto Mining Rig',
+      category: 'Distributed Compute',
+      badgeColor: 'accent-bar-blue',
+      icon: '⛏️',
+      y1: '$1,800–$5,000',
+      monthly: '$150–$1,650/mo',
+      capex: '$150–$1,500',
+      steady: '$5,000–$15,000/yr',
+      liquidity: 'Daily Payouts',
+      status: 'BLOCKED on power',
+      statusColor: 'text-ef4444',
+      dependency: 'GPU hardware + cheap power',
+      summary: 'Mining as dynamic baseline buffer for compute infrastructure. When GPU spot rental demand dips, hardware fails over to proof-of-work/useful-work mining. Zero-marginal-cost renewable power converts every hash into liquid daily payouts ($5–$55/day range).',
+      leviathanLinks: ['compute-node', 'compute-arbitrage', 'target-48v-bank'],
+      notes: 'Blocked until surplus generation exists. Size rig to surplus, not ambition.'
+    },
+    {
+      id: 'stream7',
+      number: '⑦',
+      title: 'Fitness & Habit Accountability Lab',
+      category: 'App / Coaching',
+      badgeColor: 'accent-bar-emerald',
+      icon: '💪',
+      y1: '$3,000–$6,000',
+      monthly: '$500–$1,100/mo',
+      capex: 'Low',
+      steady: '$6,000–$12,000/yr',
+      liquidity: '60 Days',
+      status: 'BACKLOG',
+      statusColor: 'text-white/50',
+      dependency: 'App dev',
+      summary: 'Micro-fitness challenge app for remote knowledge workers and developers. Light-weight daily habits with social accountability or stakes. Streaks and cohort sprints. "Hit Light Weights" model.',
+      leviathanLinks: [],
+      notes: 'Backlog item — app development required.'
+    },
+    {
+      id: 'stream8',
+      number: '⑧',
+      title: '3D Manufacturing [LAST BUT FIRST]',
+      category: 'Rapid Cash',
+      badgeColor: 'accent-bar-emerald',
+      icon: '🛠️',
+      y1: '$6,000–$15,000',
+      monthly: '$500–$3,000/mo',
+      capex: '$500–$1,000',
+      steady: '$15,000–$25,000/yr',
+      liquidity: '1–2 Weeks',
+      status: 'READY NOW',
+      statusColor: 'text-10b981',
+      dependency: 'Formlabs / xTool access',
+      summary: 'Immediate cash engine. Single high-speed FDM printer (e.g. Bambu Lab P1S) printing functional household goods, antique repro parts, custom market crafts. Go-to-market: antique fairs, farmer markets, local market days. $500–$3,000 right away. Funds Leviathan CapEx and GPU rigs.',
+      leviathanLinks: ['compute-node', 'target-48v-bank'],
+      notes: 'Written as #8 on the final page — emphatically "LAST BUT FIRST." This is the bootstrapping ignition stream.'
+    },
+    {
+      id: 'summer',
+      number: '☀️',
+      title: '4-Month Summer Surge (May–Sep)',
+      category: 'Seasonal Arbitrage',
+      badgeColor: 'accent-bar-amber',
+      icon: '☀️',
+      y1: '$5,200 Gross',
+      monthly: '$1,300/mo',
+      capex: 'Already live (free pedestal)',
+      steady: 'Seasonal',
+      liquidity: '4-Month Window',
+      status: 'SEASONAL',
+      statusColor: 'text-f59e0b',
+      dependency: 'Leviathan array at scale',
+      summary: 'Maximum solar irradiance window. ~$300/mo electric offset + ~$1,000/mo GPU/mining revenue = $1,300/mo × 4 = $5,200 gross across the summer peak. Fully offsets heavy AC and computing draw while rigs run flat out.',
+      leviathanLinks: ['solar-array', 'compute-node', 'compute-arbitrage'],
+      notes: 'Seasonal — only during peak irradiance months.'
+    }
+  ],
+
+  leviathan: {
+    powerLedger: {
+      assumptions: [
+        { name: 'PV derate', value: '0.75', source: 'Transcript planning figure — unmeasured' },
+        { name: 'Peak sun hours', value: '3.0 poor / 4.5 avg / 5.5 good / 6.0 CA-AZ summer', source: 'Generic — replace with PVWatts for actual site' },
+        { name: 'Winter PSH', value: '~1.5', source: 'Rough seasonal factor — unverified' },
+        { name: 'Wind yield', value: '0.5–1.0 kWh/night', source: 'Planning range' },
+        { name: 'Compute full load', value: '1,250W (4×5070 class + host)', source: 'Compute node page' },
+        { name: 'Compute idle', value: '~250W', source: 'Estimate' },
+        { name: 'Network + Pi swarm', value: '150W continuous', source: 'Network and overlay page' },
+        { name: 'RV baseline', value: '200W continuous', source: 'Partly on 12V island' }
+      ],
+      scenarios: {
+        poor: { gen: 7.2, rows: [
+          { label: '8×400W', nominal: '3,200W', gen: 7.2, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W (full roof)', nominal: '4,800W', gen: 10.8, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W + 4 deployable', nominal: '6,400W', gen: 14.4, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 }
+        ]},
+        avg: { gen: 10.8, rows: [
+          { label: '8×400W', nominal: '3,200W', gen: 10.8, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W (full roof)', nominal: '4,800W', gen: 16.2, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W + 4 deployable', nominal: '6,400W', gen: 22.2, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 }
+        ]},
+        good: { gen: 13.2, rows: [
+          { label: '8×400W', nominal: '3,200W', gen: 13.2, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W (full roof)', nominal: '4,800W', gen: 19.8, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W + 4 deployable', nominal: '6,400W', gen: 25.8, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 }
+        ]},
+        summer: { gen: 14.4, rows: [
+          { label: '8×400W', nominal: '3,200W', gen: 14.4, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W (full roof)', nominal: '4,800W', gen: 21.6, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 },
+          { label: '12×400W + 4 deployable', nominal: '6,400W', gen: 27.6, idle: 14.4, gpu4: 18.4, gpu8: 22.4, gpu24: 38.4 }
+        ]}
+      },
+      findings: [
+        'There is a structural deficit at every realistic duty cycle, including "no GPU work at all."',
+        'The 8-panel "sweet spot" was optimised for controller ceiling, not energy balance. The roof fits 11–12 large panels.',
+        'Storage is not the problem — 61.4 kWh bank = ~2 days at 1,250W. Generation is the constraint.',
+        'Winter (1.5 PSH): 3.4–5.4 kWh/day vs 14.4 kWh/day idle demand. Winter is a genuine generator season.'
+      ]
+    },
+    criticalFindings: [
+      { n: 1, title: 'Energy budget never reconciled (5 kWh vs 38.4 kWh)', severity: 'Critical', status: 'Verified — power ledger' },
+      { n: 2, title: 'Roof substrate may be delamination-prone → adhesive doctrine', severity: 'Critical', status: 'Verified — adhesive mounting' },
+      { n: 3, title: 'LiFePO4 cannot charge below 0 °C → winter is doubly dead', severity: 'Critical', status: 'Verified' },
+      { n: 4, title: 'No fire detection or suppression around 1,100 lb of lithium', severity: 'High', status: 'Unaddressed' },
+      { n: 5, title: 'Axle weights / GVWR never calculated', severity: 'High', status: 'Unaddressed' },
+      { n: 6, title: 'Panel mismatch implied by "buy whatever\'s cheap"', severity: 'High', status: 'Unaddressed' }
+    ],
+    blockA: [
+      { n: 'A1', q: 'Actual usable roof area, and where are the vents/skylight/obstacles?', blocks: 'solar-array, roof-vs-deployable', how: 'Tape measure + photos' },
+      { n: 'A2', q: 'Is the roof skin delaminated anywhere?', blocks: 'adhesive-mounting — whole mounting doctrine', how: 'Tap/press test; ask Leisure Coachworks' },
+      { n: 'A3', q: 'Actual glass area and orientation', blocks: 'minisplit-cooling, 120v-vs-240v-minisplit', how: 'Measure/photo' },
+      { n: 'A4', q: 'Current axle weights (front/rear) and GAWR', blocks: 'target-48v-bank, compute-node load plan', how: 'Commercial scale' },
+      { n: 'A5', q: 'What is the Xantrex unit — model and function?', blocks: 'xantrex-converter, shore-power-pedestal', how: 'Read the label' },
+      { n: 'A6', q: 'Basement bay dimensions, and does the genset service access survive?', blocks: 'basement-bay-thermal, diesel-generator-10kw', how: 'Measure' },
+      { n: 'A7', q: 'Is the factory wiring diagram obtainable?', blocks: 'Entire electrical build', how: 'Leisure Coachworks (VIN)' },
+      { n: 'A8', q: 'Does the existing mount hardware suit a second small turbine?', blocks: 'vawt-windmaxxr-rig', how: 'Inspect/photograph' }
+    ],
+    architectureForks: [
+      { n: 1, title: 'Inverter/Charger', a: 'Separate MPPT + Victron Quattro 48/5000', b: 'EG4 18k all-in-one', winner: 'Separate MPPT + Victron Quattro', why: 'No solar input ceiling — generation is the constraint' },
+      { n: 2, title: 'GPU Node Sizing', a: '4×5070 on EPYC (~250W idle)', b: '2×4090 on consumer CPU (~120W idle)', winner: '2×4090 consumer CPU', why: 'Saves 2.4 kWh/day = 1/5 of budget. Size to surplus, not ambition.' }
+    ],
+    userCorrections: [
+      'Mast: NOT on hitch — ground-mounted telescoping mast with guy wires, deployed only when stationary.',
+      'Driving: essentially stationary — moves between semi-permanent locations. Panels stay affixed but do not generate while driving.',
+      'Ops burden: mast/shutter deploy per-relocation, not daily. Review panel Finding 8 downgraded from Medium.'
+    ],
+    leisureContact: {
+      vin: '1F6NF53Y160A07258',
+      email: 'support@leisurecw.com',
+      cc: 'info@leisurecw.com',
+      phone: '(909) 428-6775',
+      address: '14642 Rancho Vista Drive, Fontana, CA 92335',
+      contact: 'Jon Goldstein (ex-Alfa QC/Service Manager) or Richard Olivas'
+    }
+  },
+
+  synergies: [
+    { asset: 'Bermuda shutter design', stream: '⑤ Patent + ④ Shutter OS', value: 'Utility patent (hardware + control OS) → licensing / fleet sales' },
+    { asset: '3D digital twin (alfa-proxy-twin.html)', stream: '④ Coach Twin → Shutter OS', value: 'SaaS for RV builders / retrofit market' },
+    { asset: 'GPU telemetry / automation', stream: '② Vast.ai + ⑥ Mining', value: 'Open-source halo-gpu-dashboard → managed service' },
+    { asset: 'Off-grid power telemetry', stream: '① Offset verification', value: 'Data product for RV solar installers' },
+    { asset: 'Panic Responsibly™ brand', stream: 'All streams', value: 'Unified trust mark → premium pricing' }
+  ],
+
+  githubRepos: [
+    { name: 'leviathan', desc: 'Operation Leviathan — interactive 3D panel for the Alfa See Ya 37FD off-grid build' },
+    { name: 'mr-vh', desc: 'Mr. vH — Forged in Code. Cinematic scroll experience for the venture portfolio.' },
+    { name: 'panic-trader-v9', desc: 'Polymarket trading bot infrastructure' },
+    { name: 'BrowserOS', desc: 'Open-source agentic browser' },
+    { name: 'filecraft-tools', desc: 'Privacy-first file tools — PDF merge/split, image compress/resize, all client-side' },
+    { name: 'dont-sleep-digest', desc: 'Daily tech deals digest — editorial design meets interactive web' },
+    { name: 'leviathan-offgrid-rv', desc: 'Comprehensive documentation for a fully autonomous off-grid RV' },
+    { name: 'mark-car-plan', desc: "Mark's Smart Car Plan — Comic Book Edition" },
+    { name: 'Hermes-agent-android-PC-companion-app', desc: 'PC-side companion for Hermes-agent Android app — mesh + handoff, NaCl-encrypted' },
+    { name: 'mrvh-site', desc: "Mr.vH brand site (mrvh.org)" },
+    { name: 'closet-ai', desc: 'Closet AI — dual-branch resale automation (consumer app + auto-poster)' }
+  ]
+};
+
+// ============================================================================
+// APP LOGIC
+// ============================================================================
+
+/* ============================================================
+   v1.1 — Revenue Model Layer
+   Every stream gets a defensible monthly number inside its stated
+   range. Change one and the portfolio math re-runs everywhere.
+   Range endpoints come from the venture blueprint; they are
+   planning figures, not measurements.
+   ============================================================ */
+/* Defaults are a conservative YEAR-1 posture that lands on the blueprint's
+   $31.7k Y1 anchor (~$31.9k). Sliders explore the envelope up to the ~$50k
+   stretch case; nothing here is measured. */
+const STREAM_MODEL = {
+  stream1:{low:200,high:300,def:300,seasonal:0},   // offset — already live
+  stream2:{low:200,high:2000,def:725,seasonal:0},  // GPU — Y1 ramp $8.7k
+  stream3:{low:0,high:1500,def:250,seasonal:0},    // Closet AI — partial year
+  stream4:{low:0,high:1000,def:150,seasonal:0},    // twin/Shutter OS — pre-revenue
+  stream5:{low:0,high:2000,def:0,seasonal:0},      // patent — no Y1 revenue
+  stream6:{low:150,high:1650,def:200,seasonal:0},  // mining — gated on power
+  stream7:{low:0,high:1100,def:0,seasonal:0},      // fitness — backlog
+  stream8:{low:500,high:3000,def:600,seasonal:0},  // 3D print — immediate cash
+  summer:{low:0,high:5200,def:5200,seasonal:4}     // 4-month peak window
+};
+const POWER_GATED = ['stream2','stream6','summer'];
+const READY_NOW   = ['stream8','stream1'];
+const MODEL_KEY   = 'tiamat.model.v1';
+let MODEL = {};
+
+function loadModel(){
+  try { const r = localStorage.getItem(MODEL_KEY); if (r) MODEL = JSON.parse(r) || {}; } catch(e){ MODEL = {}; }
+  Object.keys(STREAM_MODEL).forEach(k => { if (typeof MODEL[k] !== 'number') MODEL[k] = STREAM_MODEL[k].def; });
+}
+function saveModel(){
+  try { localStorage.setItem(MODEL_KEY, JSON.stringify(MODEL)); } catch(e){}
+  const n = document.getElementById('model-saved');
+  if (n) { n.textContent = 'saved locally ✓'; setTimeout(() => n.textContent = 'saved locally', 1400); }
+}
+function monthly(id){ const m = STREAM_MODEL[id]; return m.seasonal ? MODEL[id]/12 : MODEL[id]; }
+function usd(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+function modelTotals(){
+  let mo = 0; Object.keys(STREAM_MODEL).forEach(id => mo += monthly(id));
+  const gated = POWER_GATED.reduce((a,id) => a + monthly(id), 0);
+  const ready = READY_NOW.reduce((a,id) => a + monthly(id), 0);
+  return { mo, yr: mo*12, gated, ready, ungated: mo - gated };
+}
+function renderModel(){
+  const t = modelTotals();
+  const node = document.getElementById('model-totals');
+  if (!node) return;
+  const cells = [
+    ['Modelled monthly', usd(t.mo), 'all 9 streams, seasonal amortised'],
+    ['Annualised', usd(t.yr), t.yr >= 31700 ? 'clears the $31.7k Y1 anchor' : 'gap to $31.7k Y1: ' + usd(31700 - t.yr)],
+    ['Gap to $50k stretch', usd(Math.max(0, 50000 - t.yr)), t.yr >= 50000 ? 'stretch case met' : 'what the un-modelled upside must close'],
+    ['Ready now', usd(t.ready), '① offset + ⑧ 3D print'],
+    ['Power-gated', usd(t.gated), '② + ⑥ + ☀️ — needs surplus'],
+    ['Ungated', usd(t.ungated), 'runs regardless of the array']
+  ];
+  node.innerHTML = cells.map(c => `
+    <div class="bg-white/5 rounded-lg p-3 border border-white/5">
+      <div class="text-[10px] uppercase font-mono text-white/40">${c[0]}</div>
+      <div class="font-mono font-bold text-white text-lg leading-tight mt-0.5">${c[1]}</div>
+      <div class="text-[10px] font-mono text-white/30 mt-0.5">${c[2]}</div>
+    </div>`).join('');
+  const bar = document.getElementById('model-bar');
+  if (bar) bar.style.width = Math.min(100, (t.yr / 60000 * 100)).toFixed(1) + '%';
+  Object.keys(STREAM_MODEL).forEach(id => {
+    const s = document.getElementById('mo-' + id);
+    if (s) s.textContent = usd(MODEL[id]) + (STREAM_MODEL[id].seasonal ? ' / ' + STREAM_MODEL[id].seasonal + '-mo season' : ' / mo');
+  });
+}
+function modelSliderHTML(id){
+  const m = STREAM_MODEL[id];
+  const step = Math.max(10, Math.round((m.high - m.low) / 30 / 10) * 10);
+  return `
+    <div class="bg-ff6b1a/5 border border-ff6b1a/20 p-3 rounded-xl">
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-[10px] uppercase font-mono text-white/40">Revenue model</span>
+        <span class="font-mono font-bold text-ff6b1a text-sm" id="slider-val-${id}">${usd(MODEL[id])}${m.seasonal ? ' / season' : ' / mo'}</span>
+      </div>
+      <input type="range" min="${m.low}" max="${m.high}" step="${step}" value="${MODEL[id]}" data-model="${id}" class="w-full accent-ff6b1a">
+      <div class="flex justify-between text-[10px] font-mono text-white/30 mt-1">
+        <span>${usd(m.low)}</span><span>${usd(m.high)}${m.seasonal ? ' per ' + m.seasonal + ' months' : ' per month'}</span>
+      </div>
+    </div>`;
+}
+function downloadBlob(name, text, type){
+  const blob = new Blob([text], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+function exportCSV(){
+  const rows = [['num','stream','category','status','modelled_usd','annualised_usd','seasonal_months','dependency','leviathan_links']];
+  TIAMAT_DATA.streams.forEach(s => {
+    const m = STREAM_MODEL[s.id] || { seasonal: 0 };
+    rows.push([s.number, s.title, s.category, s.status, (MODEL[s.id] || 0), Math.round(monthly(s.id)*12), m.seasonal || 0, s.dependency, s.leviathanLinks.join(' | ')]);
+  });
+  const t = modelTotals();
+  rows.push([]);
+  rows.push(['PORTFOLIO TOTAL','','','', Math.round(t.mo), Math.round(t.yr), '', 'modelled', '']);
+  rows.push(['POWER-GATED SHARE','','','', Math.round(t.gated), Math.round(t.gated*12), '', 'GPU + mining + summer', '']);
+  rows.push(['READY NOW','','','', Math.round(t.ready), Math.round(t.ready*12), '', 'offset + 3D print', '']);
+  downloadBlob('tiamat-portfolio.csv', rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n'), 'text/csv');
+}
+function bindModelControls(){
+  const reset = document.getElementById('model-reset');
+  const csv = document.getElementById('model-csv');
+  if (reset) reset.addEventListener('click', () => { Object.keys(STREAM_MODEL).forEach(k => MODEL[k] = STREAM_MODEL[k].def); saveModel(); renderModel(); });
+  if (csv) csv.addEventListener('click', exportCSV);
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (!t.dataset || !t.dataset.model) return;
+    const id = t.dataset.model;
+    MODEL[id] = +t.value;
+    const lab = document.getElementById('slider-val-' + id);
+    if (lab) lab.textContent = usd(MODEL[id]) + (STREAM_MODEL[id].seasonal ? ' / season' : ' / mo');
+    renderModel(); saveModel();
+  });
+}
+
+const app = {
+  currentTab: 'matrix',
+  activeStream: null,
+  ledgerConfig: 'avg',
+
+  init() {
+    loadModel();
+    this.bindNav();
+    this.renderStreams();
+    renderModel();
+    bindModelControls();
+    this.renderLedger();
+    this.renderBlockA();
+    this.renderRisks();
+    this.bindPanel();
+    this.bindExport();
+    this.bindLedgerToggle();
+  },
+
+  bindNav() {
+    const tabs = ['matrix', 'ledger', 'synergies', 'open-questions', 'risks'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('tab-' + t);
+      if (!btn) return;
+      btn.addEventListener('click', () => this.switchTab(t));
+    });
+  },
+
+  switchTab(tabId) {
+    this.currentTab = tabId;
+    const tabs = ['matrix', 'ledger', 'synergies', 'open-questions', 'risks'];
+    tabs.forEach(t => {
+      const btn = document.getElementById('tab-' + t);
+      const view = document.getElementById('view-' + t);
+      if (t === tabId) {
+        btn.className = 'nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors bg-ff6b1a text-0a0a00 font-semibold shadow-sm flex items-center gap-2';
+        view.classList.remove('hidden');
+      } else {
+        btn.className = 'nav-btn px-4 py-1.5 rounded-lg text-sm font-medium transition-colors text-white/40 hover:text-white hover:bg-white/5 flex items-center gap-2';
+        view.classList.add('hidden');
+      }
+    });
+  },
+
+  renderStreams() {
+    const grid = document.getElementById('stream-grid');
+    grid.innerHTML = TIAMAT_DATA.streams.map(s => `
+      <div class="stream-card panel rounded-xl p-4 sm:p-5 group border border-white/10 flex flex-col" onclick="app.openStream('${s.id}')">
+        <div class="flex items-center justify-between mb-2">
+          <span class="tag font-bold ${s.statusColor === 'text-10b981' ? 'text-10b981' : s.statusColor === 'text-ef4444' ? 'text-ef4444' : 'text-white/50'}">${s.status}</span>
+          <span class="text-2xl font-black">${s.number}</span>
+        </div>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm font-bold text-white">${s.icon}</span>
+          <h3 class="font-bold text-white leading-snug">${s.title}</h3>
+        </div>
+        <div class="flex items-center gap-1 mb-1">
+          <span class="text-[10px] text-white/40 font-mono uppercase">${s.category}</span>
+        </div>
+        <div class="mt-auto pt-3 border-t border-white/5">
+          <div class="flex justify-between items-end mb-1">
+            <span class="text-xs font-mono text-white/50">Y1 Net</span>
+            <span class="text-sm font-bold text-10b981 font-mono">${s.y1}</span>
+          </div>
+          <div class="flex justify-between items-end">
+            <span class="text-xs font-mono text-white/50">Monthly</span>
+            <span class="text-xs font-mono text-white/70" id="mo-${s.id}">${s.monthly}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  openStream(id) {
+    const s = TIAMAT_DATA.streams.find(x => x.id === id);
+    if (!s) return;
+    this.activeStream = s;
+    document.getElementById('panel-title').textContent = `${s.number} ${s.title}`;
+    document.getElementById('panel-content').innerHTML = `
+      <div class="space-y-5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono border ${s.badgeColor.replace('accent-bar-', 'border-')} text-white/80">${s.category}</span>
+          <span class="text-xs font-bold ${s.statusColor}">${s.status}</span>
+        </div>
+        <h2 class="text-xl font-black text-white mb-2">${s.number} ${s.title}</h2>
+        <p class="text-xs text-white/60 leading-relaxed mb-4">${s.summary}</p>
+
+        <div class="bg-white/5 p-4 rounded-xl border border-white/10 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <span class="text-[10px] uppercase font-mono text-white/40 block mb-1">Year 1 Net</span>
+              <span class="font-mono font-bold text-10b981">${s.y1}</span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-mono text-white/40 block mb-1">Monthly Potential</span>
+              <span class="font-mono font-bold text-white">${s.monthly}</span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-mono text-white/40 block mb-1">CapEx / Startup</span>
+              <span class="font-mono text-white">${s.capex}</span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-mono text-white/40 block mb-1">Steady-State (Y2+)</span>
+              <span class="font-mono text-white/80">${s.steady}</span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-mono text-white/40 block mb-1">Time to Liquidity</span>
+              <span class="font-mono text-white">${s.liquidity}</span>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase font-mono text-white/40 block mb-1">Dependency</span>
+              <span class="font-mono text-white/80">${s.dependency}</span>
+            </div>
+          </div>
+        </div>
+
+        ${STREAM_MODEL[s.id] ? modelSliderHTML(s.id) : ''}
+
+        ${s.leviathanLinks.length > 0 ? `
+        <div>
+          <span class="text-[10px] uppercase font-mono text-white/40 block mb-2">Leviathan Asset Links</span>
+          <div class="flex flex-wrap gap-1">
+            ${s.leviathanLinks.map(l => `<span class="px-2 py-1 rounded bg-white/5 border border-white/10 text-[10px] text-white/60 font-mono">${l}</span>`).join('')}
+          </div>
+        </div>
+        ` : ''}
+
+        ${s.notes ? `
+        <div class="pt-3 border-t border-white/5">
+          <span class="text-[10px] uppercase font-mono text-white/40 block mb-2">Field Notes</span>
+          <p class="text-xs text-white/60 leading-relaxed">${s.notes}</p>
+        </div>
+        ` : ''}
+      </div>
+    `;
+    document.getElementById('side-panel').classList.remove('translate-x-full');
+    document.getElementById('panel-backdrop').classList.remove('hidden');
+  },
+
+  bindPanel() {
+    document.getElementById('close-panel').addEventListener('click', () => {
+      document.getElementById('side-panel').classList.add('translate-x-full');
+      document.getElementById('panel-backdrop').classList.add('hidden');
+    });
+    document.getElementById('panel-backdrop').addEventListener('click', () => {
+      document.getElementById('side-panel').classList.add('translate-x-full');
+      document.getElementById('panel-backdrop').classList.add('hidden');
+    });
+  },
+
+  bindExport() {
+    document.getElementById('export-state').addEventListener('click', () => {
+      const state = { streams: TIAMAT_DATA.streams.map(s => ({ id: s.id, status: s.status })), ledgerConfig: this.ledgerConfig, activeStream: this.activeStream ? this.activeStream.id : null };
+      const hash = btoa(JSON.stringify(state)).replace(/[+/=]/g, c => ({ '+': '-', '/': '_', '=': '' }[c]));
+      const url = window.location.origin + window.location.pathname + '#tiamat=' + hash;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('export-state');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => btn.textContent = orig, 1500);
+      });
+    });
+  },
+
+  renderLedger() {
+    const cfg = TIAMAT_DATA.leviathan.powerLedger.scenarios[this.ledgerConfig];
+    const tbody = document.getElementById('ledger-table');
+    tbody.innerHTML = cfg.rows.map(r => {
+      const idleNet = r.gen - r.idle;
+      const gpu4Net = r.gen - r.gpu4;
+      const gpu8Net = r.gen - r.gpu8;
+      const gpu24Net = r.gen - r.gpu24;
+      const fmt = (n) => (n >= 0 ? '+' : '') + n.toFixed(2);
+      return `
+        <tr class="group hover:bg-white/5">
+          <td class="py-3 px-4 font-bold text-white">${r.label}</td>
+          <td class="py-3 px-4 text-right text-white/60 font-mono">${r.nominal}</td>
+          <td class="py-3 px-4 text-right font-mono text-white">${r.gen.toFixed(2)}</td>
+          <td class="py-3 px-4 text-right font-mono text-white/60">${r.idle}</td>
+          <td class="py-3 px-4 text-right font-mono ${idleNet >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(idleNet)}</td>
+          <td class="py-3 px-4 text-right font-mono ${gpu4Net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(gpu4Net)}</td>
+          <td class="py-3 px-4 text-right font-mono ${gpu8Net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(gpu8Net)}</td>
+          <td class="py-3 px-4 text-right font-mono ${gpu24Net >= 0 ? 'text-10b981' : 'text-ef4444'}">${fmt(gpu24Net)}</td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  bindLedgerToggle() {
+    ['poor', 'avg', 'good', 'summer'].forEach(cfg => {
+      document.getElementById('cfg-' + cfg).addEventListener('click', () => {
+        this.ledgerConfig = cfg;
+        ['poor', 'avg', 'good', 'summer'].forEach(c => {
+          const b = document.getElementById('cfg-' + c);
+          if (c === cfg) {
+            b.className = 'px-3 py-1 rounded text-xs font-mono border border-ff6b1a text-ff6b1a bg-ff6b1a/10';
+          } else {
+            b.className = 'px-3 py-1 rounded text-xs font-mono border border-white/10 hover:border-ff6b1a text-white/60 hover:text-ff6b1a';
+          }
+        });
+        this.renderLedger();
+      });
+    });
+  },
+
+  renderBlockA() {
+    const tbody = document.getElementById('block-a-table');
+    tbody.innerHTML = TIAMAT_DATA.leviathan.blockA.map(b => `
+      <tr>
+        <td class="py-3 px-4 font-bold text-ff6b1a font-mono">${b.n}</td>
+        <td class="py-3 px-4 text-white">${b.q}</td>
+        <td class="py-3 px-4 text-white/60 font-mono text-[10px]">${b.blocks}</td>
+        <td class="py-3 px-4 text-white/70 font-mono text-[10px]">${b.how}</td>
+        <td class="py-3 px-4 text-right">
+          <input type="checkbox" class="rounded border-white/30 bg-0a0a0a text-ff6b1a focus:ring-ff6b1a" />
+        </td>
+      </tr>
+    `).join('');
+  },
+
+  renderRisks() {
+    const tbody = document.getElementById('risks-table');
+    tbody.innerHTML = TIAMAT_DATA.leviathan.criticalFindings.map(f => `
+      <tr>
+        <td class="py-3 px-4 text-right font-bold text-ef4444 font-mono">#${f.n}</td>
+        <td class="py-3 px-4 text-white">${f.title}</td>
+        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${f.severity === 'Critical' ? 'bg-ef4444/20 text-ef4444 border border-ef4444/40' : 'bg-f59e0b/20 text-f59e0b border border-f59e0b/40'}">${f.severity}</span></td>
+        <td class="py-3 px-4 text-xs text-white/50 font-mono">${f.status}</td>
+      </tr>
+    `).join('');
+  }
+};
+
+// Keyboard navigation: j/k to cycle streams, Enter to open, Esc to close
+document.addEventListener('keydown', (e) => {
+  const streams = TIAMAT_DATA.streams.map(s => s.id);
+  if (!app.activeStream && e.key === 'Escape') return;
+  if (e.key === 'Escape') {
+    document.getElementById('side-panel').classList.add('translate-x-full');
+    document.getElementById('panel-backdrop').classList.add('hidden');
+    app.activeStream = null;
+    return;
+  }
+  if (['j', 'k', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
+    e.preventDefault();
+    const idx = streams.indexOf(app.activeStream ? app.activeStream.id : -1);
+    const step = (e.key === 'j' || e.key === 'ArrowDown') ? 1 : -1;
+    const next = (idx + step + streams.length) % streams.length;
+    app.openStream(streams[next]);
+  }
+  if (e.key === 'Enter' && app.activeStream) {
+    // already open, do nothing
+  }
+});
+
+// Restore state from URL hash if present
+if (window.location.hash.startsWith('#tiamat=')) {
+  try {
+    const hash = window.location.hash.slice('#tiamat='.length).replace(/-/g, '+').replace(/_/g, '/') + '==';
+    const state = JSON.parse(atob(hash));
+    if (state.ledgerConfig) app.ledgerConfig = state.ledgerConfig;
+    if (state.activeStream) setTimeout(() => app.openStream(state.activeStream), 100);
+  } catch (err) { /* ignore bad hash */ }
+}
+
+window.addEventListener('DOMContentLoaded', () => app.init());
+</script>
+</body>
+</html>
